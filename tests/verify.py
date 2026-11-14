@@ -83,6 +83,71 @@ def test_sqlite_seed_and_duplicate_collision(tmp_db: Path) -> None:
     assert "Zenith Logistics Inc." in dup.detail
 
 
+def test_approved_vendor_promoted_to_registry_for_future_checks(tmp_db: Path) -> None:
+    from core.database import persist_run, upsert_approved_vendor
+
+    new_vendor = {
+        "legal_name": "Northstar Cloud Systems Inc.",
+        "country": "US",
+        "tax_id": "47-3920184",
+        "expected_annual_spend_usd": 42000,
+        "account_holder_name": "Northstar Cloud Systems Inc.",
+        "bank_country": "US",
+        "routing_or_ifsc": "021000021",
+        "account_number": "4401928374",
+    }
+    result = upsert_approved_vendor(new_vendor, db_path=tmp_db)
+    assert result["action"] == "inserted"
+
+    # Re-approve same legal name refreshes coordinates
+    new_vendor["account_number"] = "4401928374"
+    result2 = upsert_approved_vendor(new_vendor, db_path=tmp_db)
+    assert result2["action"] == "updated"
+
+    # persist_run on APPROVED also promotes
+    persist_run(
+        run_id="VG-TEST-REG-1",
+        submission={
+            "legal_name": "Orbit Pack Co Inc.",
+            "country": "US",
+            "tax_id": "12-3456789",
+            "expected_annual_spend_usd": 10000,
+            "bank_country": "US",
+            "routing_or_ifsc": "021000021",
+            "account_number": "7788990011",
+        },
+        adjudication={"status": "APPROVED", "risk_score": 10, "cited_clauses": []},
+        stage_trace=[],
+        evidence_rows=[],
+        comms={},
+        duration_ms=100,
+        db_path=tmp_db,
+    )
+    hits = find_account_collisions("7788990011", "Fake Clone LLC", db_path=tmp_db)
+    assert hits and hits[0]["legal_name"] == "Orbit Pack Co Inc."
+
+    # PENDING must not promote
+    persist_run(
+        run_id="VG-TEST-REG-2",
+        submission={
+            "legal_name": "Pending Only LLC",
+            "country": "US",
+            "tax_id": "98-7654321",
+            "expected_annual_spend_usd": 10000,
+            "bank_country": "US",
+            "routing_or_ifsc": "021000021",
+            "account_number": "1122334455",
+        },
+        adjudication={"status": "PENDING", "risk_score": 40, "cited_clauses": []},
+        stage_trace=[],
+        evidence_rows=[],
+        comms={},
+        duration_ms=100,
+        db_path=tmp_db,
+    )
+    assert not find_account_collisions("1122334455", "Someone Else LLC", db_path=tmp_db)
+
+
 def test_sample_pdfs_exist_and_valid() -> None:
     assert PRESETS_PATH.exists(), "data/presets.json missing — run scripts/seedpdfs.py"
     pdfs = sorted(PDF_DIR.glob("*.pdf"))

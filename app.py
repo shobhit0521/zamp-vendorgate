@@ -395,9 +395,18 @@ with tab_live:
                             """
                         )
                 elif adj.get("status") == "APPROVED":
+                    reg = state.get("registry_write") or {}
+                    reg_note = ""
+                    if reg.get("action") in {"inserted", "updated"}:
+                        reg_note = (
+                            f" Vendor <span class='vg-mono'>{reg.get('legal_name','')}</span> was "
+                            f"<b>{reg.get('action')}</b> in the approved-vendors registry for future "
+                            "duplicate-account collision checks."
+                        )
                     st.html(
                         '<div class="vg-panel">Auto-approved via Conditional Gate 2 — '
-                        "Comms & Critic QA skipped. Onboarding confirmation attached to adjudication.</div>"
+                        "Comms & Critic QA skipped. Onboarding confirmation attached to adjudication."
+                        f"{reg_note}</div>"
                     )
 
         # Initial paint from session

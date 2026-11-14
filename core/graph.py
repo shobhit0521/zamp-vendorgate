@@ -505,8 +505,9 @@ def stream_onboarding_run(
     adjudication = merged.get("adjudication") or {}
     investigation = merged.get("investigation") or {}
     evidence_rows = investigation.get("evidence_rows") or []
+    registry_write = None
     if persist:
-        persist_run(
+        persist_result = persist_run(
             run_id=rid,
             submission=sub,
             adjudication=adjudication,
@@ -515,11 +516,15 @@ def stream_onboarding_run(
             comms=merged.get("comms") or {},
             duration_ms=duration,
             db_path=db_path,
-        )
+        ) or {}
+        registry_write = persist_result.get("registry_write")
+        if registry_write:
+            merged["registry_write"] = registry_write
     yield {
         "node": "__complete__",
         "partial": {},
         "state": merged,
         "run_id": rid,
         "duration_ms": duration,
+        "registry_write": registry_write,
     }

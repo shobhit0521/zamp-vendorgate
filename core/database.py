@@ -309,6 +309,75 @@ def find_account_collisions(
         conn.close()
 
 
+def upsert_approved_vendor(
+    submission: dict[str, Any],
+    db_path: str | Path | None = None,
+) -> dict[str, Any]:
+    """Promote an APPROVED submission into the master registry for future collision checks.
+
+    - Same legal name → refresh tax/bank coordinates in place.
+    - New legal name → insert a new registry row.
+    Returns metadata describing the write.
+    """
+    legal_name = (submission.get("legal_name") or "").strip()
+    account_number = (submission.get("account_number") or "").strip()
+    if not legal_name or not account_number:
+        return {"action": "skipped", "reason": "missing legal_name or account_number"}
+
+    conn = get_connection(db_path)
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT id, legal_name, account_number FROM approved_vendors_registry
+            WHERE LOWER(legal_name) = LOWER(?)
+            LIMIT 1
+            """,
+            (legal_name,),
+        )
+        existing = cur.fetchone()
+        payload = (
+            submission.get("country") or "",
+            submission.get("tax_id") or "",
+            account_number,
+            submission.get("routing_or_ifsc") or "",
+            submission.get("bank_country") or "",
+            "APPROVED",
+        )
+        if existing:
+            cur.execute(
+                """
+                UPDATE approved_vendors_registry
+                SET country = ?, tax_id = ?, account_number = ?, routing_or_ifsc = ?,
+                    bank_country = ?, status = ?
+                WHERE id = ?
+                """,
+                (*payload, existing["id"]),
+            )
+            action = "updated"
+            registry_id = existing["id"]
+        else:
+            cur.execute(
+                """
+                INSERT INTO approved_vendors_registry
+                (legal_name, country, tax_id, account_number, routing_or_ifsc, bank_country, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (legal_name, *payload),
+            )
+            action = "inserted"
+            registry_id = cur.lastrowid
+        conn.commit()
+        return {
+            "action": action,
+            "registry_id": registry_id,
+            "legal_name": legal_name,
+            "account_number": account_number,
+        }
+    finally:
+        conn.close()
+
+
 def next_run_id(db_path: str | Path | None = None) -> str:
     conn = get_connection(db_path)
     try:
@@ -376,6 +445,13 @@ def persist_run(
         conn.commit()
     finally:
         conn.close()
+
+    # After a successful APPROVED adjudication, promote into the master registry
+    # so future onboarding runs can detect duplicate bank-account collisions.
+    registry_write = None
+    if (adjudication.get("status") or "").upper() == "APPROVED":
+        registry_write = upsert_approved_vendor(submission, db_path=db_path)
+    return {"registry_write": registry_write}
 
 
 def list_runs(
