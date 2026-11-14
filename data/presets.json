@@ -1,0 +1,113 @@
+{
+  "preset_1_happy_path": {
+    "label": "Northstar [Standard US]",
+    "expected_status": "APPROVED",
+    "expected_clauses": [
+      "AOP \u00a71.1 \u2014 Standard Auto-Approval"
+    ],
+    "tax_pdf": "data/pdfs/preset_1_northstar_w9.pdf",
+    "bank_pdf": "data/pdfs/preset_1_northstar_chase_bvl.pdf",
+    "submission": {
+      "legal_name": "Northstar Cloud Systems Inc.",
+      "dba_name": "",
+      "country": "US",
+      "registration_address": "1200 Market Street, Suite 400, San Francisco, CA 94103",
+      "contact_email": "finance@northstarcloud.io",
+      "tax_id": "47-3920184",
+      "expected_annual_spend_usd": 42000,
+      "account_holder_name": "Northstar Cloud Systems Inc.",
+      "bank_country": "US",
+      "routing_or_ifsc": "021000021",
+      "account_number": "4401928374"
+    }
+  },
+  "preset_2_dba_variance": {
+    "label": "CloudPulse [DBA Variance]",
+    "expected_status": "PENDING",
+    "expected_clauses": [
+      "AOP \u00a72.2 \u2014 Corporate Hierarchy & DBA Alignment"
+    ],
+    "tax_pdf": "data/pdfs/preset_2_cloudpulse_gst.pdf",
+    "bank_pdf": "data/pdfs/preset_2_cloudpulse_hdfc_cheque.pdf",
+    "submission": {
+      "legal_name": "CloudPulse Technologies",
+      "dba_name": "",
+      "country": "IN",
+      "registration_address": "12 Residency Road, Bengaluru, Karnataka 560025",
+      "contact_email": "billing@cloudpulse.in",
+      "tax_id": "29AABCC4829K1Z5",
+      "expected_annual_spend_usd": 38000,
+      "account_holder_name": "CloudPulse Technologies",
+      "bank_country": "IN",
+      "routing_or_ifsc": "HDFC0001204",
+      "account_number": "50200048192011"
+    }
+  },
+  "preset_3_offshore_split": {
+    "label": "Meridian [Offshore Split]",
+    "expected_status": "PENDING",
+    "expected_clauses": [
+      "AOP \u00a73.1 \u2014 Cross-Border Treasury & Tax Nexus",
+      "AOP \u00a74.1 \u2014 High-Value Contract Governance"
+    ],
+    "tax_pdf": "data/pdfs/preset_3_meridian_w9.pdf",
+    "bank_pdf": "data/pdfs/preset_3_meridian_cayman_wire.pdf",
+    "submission": {
+      "legal_name": "Meridian BioLabs Inc.",
+      "dba_name": "",
+      "country": "US",
+      "registration_address": "500 Innovation Drive, Cambridge, MA 02139",
+      "contact_email": "treasury@meridianbiolabs.com",
+      "tax_id": "82-6410923",
+      "expected_annual_spend_usd": 140000,
+      "account_holder_name": "Meridian BioLabs Inc.",
+      "bank_country": "KY",
+      "routing_or_ifsc": "CAYMKYKY012",
+      "account_number": "KY890011223344"
+    }
+  },
+  "preset_4_wrong_doc_typo": {
+    "label": "Kinetix [Wrong Doc + Typo]",
+    "expected_status": "PENDING",
+    "expected_clauses": [
+      "AOP \u00a72.1 \u2014 Document & Data Discrepancy Remediation"
+    ],
+    "tax_pdf": "data/pdfs/preset_4_kinetix_gst.pdf",
+    "bank_pdf": "data/pdfs/preset_4_kinetix_quote.pdf",
+    "submission": {
+      "legal_name": "Kinetix Precision Engineering Pvt Ltd",
+      "dba_name": "",
+      "country": "IN",
+      "registration_address": "Plot 18, MIDC Andheri East, Mumbai, Maharashtra 400093",
+      "contact_email": "accounts@kinetixprecision.in",
+      "tax_id": "27AADCK9102M1Z8",
+      "expected_annual_spend_usd": 31000,
+      "account_holder_name": "Kinetix Precision Engineering Pvt Ltd",
+      "bank_country": "IN",
+      "routing_or_ifsc": "ICIC0000391",
+      "account_number": "039105009281"
+    }
+  },
+  "preset_5_bank_fraud": {
+    "label": "Apex [Bank Fraud]",
+    "expected_status": "REJECTED",
+    "expected_clauses": [
+      "AOP \u00a75.1 \u2014 Zero-Tolerance Fraud & Payment Diversion"
+    ],
+    "tax_pdf": "data/pdfs/preset_5_apex_w9.pdf",
+    "bank_pdf": "data/pdfs/preset_5_apex_personal_bank.pdf",
+    "submission": {
+      "legal_name": "Apex Digital Supply LLC",
+      "dba_name": "",
+      "country": "US",
+      "registration_address": "88 Commerce Blvd, Austin, TX 78701",
+      "contact_email": "apex.billing.ops@gmail.com",
+      "tax_id": "61-4092817",
+      "expected_annual_spend_usd": 85000,
+      "account_holder_name": "Apex Digital Supply LLC",
+      "bank_country": "US",
+      "routing_or_ifsc": "021000021",
+      "account_number": "8899001122"
+    }
+  }
+}

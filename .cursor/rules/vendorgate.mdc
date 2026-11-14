@@ -1,0 +1,23 @@
+---
+description: VendorGate autonomous KYB & vendor onboarding guardrails
+globs:
+  - "**/*"
+---
+
+# VendorGate Technical Guardrails
+
+## Google GenAI SDK
+- ALWAYS import `from google import genai` and `from google.genai import types`.
+- NEVER use the deprecated `google-generativeai` package.
+- Default fast multimodal/drafter model: `"gemini-3.5-flash-lite"`.
+- Default deep reasoning model: `"gemini-4-hydrogen"` with automatic try/except fallback to `"gemini-3.5-flash-lite"`.
+- NEVER pass `temperature`, `top_p`, or `top_k` in `types.GenerateContentConfig`.
+- Pass PDF bytes via `types.Part.from_bytes(data=pdf_bytes, mime_type="application/pdf")`.
+- Enforce structured outputs with `response_mime_type="application/json"` and `response_schema=YourPydanticModel`.
+- Keep Pydantic models for `response_schema` STRICTLY FLAT (no `dict[str, Any]`, no Optional union nesting).
+
+## API Key Resolution
+Resolve `GEMINI_API_KEY` in order: session-state UI override -> `st.secrets["GEMINI_API_KEY"]` -> `os.getenv("GEMINI_API_KEY")`.
+
+## Sample Artifacts
+Do NOT gitignore `data/pdfs/*.pdf` or `data/presets.json`. Only gitignore `.venv/`, `__pycache__/`, `.env`, and `*.db`.

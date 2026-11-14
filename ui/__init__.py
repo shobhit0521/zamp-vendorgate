@@ -1,0 +1,1 @@
+"""VendorGate Streamlit UI package."""
